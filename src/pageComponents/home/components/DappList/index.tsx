@@ -4,11 +4,18 @@ import Link from 'next/link';
 import { formatNumber } from 'utils/format';
 import { RightOutlined } from '@ant-design/icons';
 import useResponsive from 'utils/useResponsive';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import clsx from 'clsx';
+import useGetLoginStatus from 'redux/hooks/useGetLoginStatus';
+import { useRouter } from 'next/navigation';
+import { useCheckLoginAndToken } from 'hooks/useWallet';
 
 export default function DappList() {
   const { isMD } = useResponsive();
   const [dataSource, setDataSource] = useState<Array<any>>([]);
+  const { isLogin } = useGetLoginStatus();
+  const router = useRouter();
+  const { checkLogin } = useCheckLoginAndToken();
 
   useEffect(() => {
     setDataSource([
@@ -90,6 +97,26 @@ export default function DappList() {
     ]);
   }, []);
 
+  const handleClick = (item: any) => {
+    window.open(item.link);
+  };
+
+  const handleStake = useCallback(
+    (item: any) => {
+      const stakeUrl = `/stake/${encodeURI(item.dappName)}`;
+      if (!isLogin) {
+        checkLogin({
+          onSuccess: () => {
+            router.push(stakeUrl);
+          },
+        });
+        return;
+      }
+      router.push(stakeUrl);
+    },
+    [checkLogin, isLogin, router],
+  );
+
   const columns: TableColumnsType<any> = [
     {
       title: 'Name',
@@ -101,14 +128,24 @@ export default function DappList() {
           <div className="flex items-center gap-x-4">
             {!item.icon ? null : (
               <img
-                className="w-8 h-8 md:w-16 md:h-16 rounded-md"
+                onClick={() => {
+                  handleClick(item);
+                }}
+                className="w-8 h-8 md:w-16 md:h-16 rounded-md cursor-pointer"
                 width={64}
                 height={64}
                 alt="logo"
                 src={item.icon}
               />
             )}
-            <span className="text-sm font-medium md:text-base text-neutralTitle">{text}</span>
+            <span
+              className="text-sm font-medium md:text-base text-neutralTitle cursor-pointer"
+              onClick={() => {
+                handleClick(item);
+              }}
+            >
+              {text}
+            </span>
           </div>
         );
       },
@@ -144,7 +181,13 @@ export default function DappList() {
       render: (_, item) => {
         return (
           <div className="flex items-center gap-x-4 md:gap-x-12">
-            <Link href={`/stake/${encodeURI(item.dappName)}`}>
+            <Link
+              href={`/stake/${encodeURI(item.dappName)}`}
+              onClick={(e) => {
+                e.preventDefault();
+                handleStake(item);
+              }}
+            >
               <Button
                 type="primary"
                 disabled={!item.supportsApply}
@@ -156,17 +199,26 @@ export default function DappList() {
             </Link>
             <Button
               type="link"
+              disabled={!item.supportsApply}
               className="!px-0"
               size={isMD ? 'small' : 'medium'}
               onClick={() => {
-                window.open(item.link, '_blank');
+                // window.open(item.link, '_blank');
               }}
             >
-              <span className="text-brandDefault hover:text-brandHover">
+              <span
+                className={clsx(
+                  'text-brandDefault hover:text-brandHover',
+                  !item.supportsApply && 'text-brandDisable',
+                )}
+              >
                 {isMD ? 'Gain' : 'Gain points'}
               </span>
               <RightOutlined
-                className="w-4 h-4 text-brandDefault ml-1 md:ml-4"
+                className={clsx(
+                  'w-4 h-4 text-brandDefault ml-1 md:ml-4',
+                  !item.supportsApply && 'text-brandDisable',
+                )}
                 width={20}
                 height={20}
               />

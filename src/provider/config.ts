@@ -16,7 +16,8 @@ export const AELFDProviderTheme: ThemeConfig = {
       headerColor: 'var(--neutral-secondary)',
       headerSplitColor: 'var(--brand-bg)',
       headerBg: 'var(--brand-bg)',
-      footerBg: 'var(--brand-bg)',
+      colorBgContainer: 'var(--brand-bg)',
+      rowHoverBg: 'var(--neutral-white-bg)',
     },
     Layout: {
       bodyBg: 'var(--neutral-white-bg)',

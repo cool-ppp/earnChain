@@ -14,6 +14,7 @@ import useGetLoginStatus from 'redux/hooks/useGetLoginStatus';
 import { IMenuItem } from './type';
 import { CompassLink } from './components/CompassLink';
 import ConnectWallet from './components/ConnectWallet';
+import { DropMenu, DropMenuTypeEnum } from './components/DropMenu';
 
 export default function Header() {
   const { checkLogin } = useCheckLoginAndToken();
@@ -63,12 +64,12 @@ export default function Header() {
     setMenuModalVisibleModel(false);
   });
 
-  const FunctionalArea = (itemList: Array<IMenuItem>) => {
+  const FunctionalArea = useMemo(() => {
     if (!isLG) {
       return (
         <>
           <span className="space-x-8 xl:space-x-12 flex flex-row items-center">
-            {itemList.map((item) => {
+            {menuItems.map((item) => {
               const { title, schema } = item;
               return (
                 <CompassLink
@@ -81,14 +82,19 @@ export default function Header() {
             })}
           </span>
           <div className="ml-8">
-            <ConnectWallet />
+            <DropMenu isMobile={false} type={DropMenuTypeEnum.My} />
           </div>
         </>
       );
     } else {
-      return null;
+      return (
+        <div className="flex flex-row gap-1 items-center">
+          <DropMenu isMobile={true} type={DropMenuTypeEnum.My} />
+          <DropMenu isMobile={true} type={DropMenuTypeEnum.Nav} />
+        </div>
+      );
     }
-  };
+  }, [isLG, menuItems, onPressCompassItems]);
 
   return (
     <section className={clsx('sticky top-0 left-0 z-[100] flex-shrink-0 px-4 lg:px-10')}>
@@ -104,7 +110,7 @@ export default function Header() {
             />
           }
         </div>
-        {FunctionalArea(menuItems)}
+        {FunctionalArea}
       </div>
       <Modal
         mask={false}
