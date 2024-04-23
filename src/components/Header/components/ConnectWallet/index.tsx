@@ -19,7 +19,7 @@ export default function ConnectWallet() {
   }, [cmsInfo?.curChain, wallet.address]);
 
   return isLogin ? (
-    <div className="rounded-lg py-3 px-4 border-solid border-[1px] text-base font-medium text-neutralTitle border-lineDividers bg-neutralWhiteBg">
+    <div className="rounded-lg py-3 px-4 border-solid border-[1px] text-base font-medium text-neutralTitle border-lineDividers bg-neutralDefaultBg">
       {formatAddress}
     </div>
   ) : (

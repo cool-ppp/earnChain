@@ -1,10 +1,10 @@
 :root {
     --brand-default: #7D48E8;
-    --brand-hover: #5a9cff;
-    --brand-pressed: #267af8;
-    --brand-disable: #adceff;
-    --brand-enable: #8cbaff;
+    --brand-hover: #915BFF;
+    --brand-pressed: #6434C6;
+    --brand-disable: #D8C8F8;
     --brand-bg: #F9FCFF;
+    --brand-footer-bg: #F9FCFF;
     --neutral-title: #1a1a1a;
     --neutral-primary: #434343;
     --neutral-secondary: #919191;
@@ -28,25 +28,16 @@
     --fill-mask-3: rgb(67 67 67 / 30%);
     --fill-mask-4: rgb(0 0 0 / 50%);
     --fill-mask-5: rgb(0 0 0 / 85%);
-    --rarity-platinum: #91C0CC;
-    --rarity-bronze: #D2965E;
-    --rarity-silver: #ADC4D5;
-    --rarity-gold: #E3CA69;
-    --rarity-halcyon: #7DC7AD;
-    --rarity-diamond: #AA98FF;
-    --line-dividers: #f0f0f0;
   }
   
   .dark-theme {
-    --neutral-title: #fff;
-  
-    /* not adapted to night mode */
     --brand-default: #7D48E8;
-    --brand-hover: #5a9cff;
-    --brand-pressed: #267af8;
-    --brand-disable: #adceff;
-    --brand-enable: #8cbaff;
-    --brand-bg: #ebf3ff;
+    --brand-hover: #915BFF;
+    --brand-pressed: #6434C6;
+    --brand-disable: #D8C8F8;
+    --brand-bg: #F9FCFF;
+    --brand-footer-bg: #F9FCFF;
+    --neutral-title: #1a1a1a;
     --neutral-primary: #434343;
     --neutral-secondary: #919191;
     --neutral-tertiary: #9f9f9f;
@@ -69,12 +60,5 @@
     --fill-mask-3: rgb(67 67 67 / 30%);
     --fill-mask-4: rgb(0 0 0 / 50%);
     --fill-mask-5: rgb(0 0 0 / 85%);
-    --rarity-platinum: #91C0CC;
-    --rarity-bronze: #D2965E;
-    --rarity-silver: #ADC4D5;
-    --rarity-gold: #E3CA69;
-    --rarity-halcyon: #7DC7AD;
-    --rarity-diamond: #AA98FF;
-    --line-dividers: #f0f0f0;
   }
   
