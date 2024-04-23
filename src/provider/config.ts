@@ -2,9 +2,9 @@ import { ThemeConfig } from 'antd';
 
 export const AELFDProviderTheme: ThemeConfig = {
   token: {
-    colorPrimary: '#3888FF',
-    colorPrimaryHover: '#5A9CFF',
-    colorPrimaryActive: '#267AF8',
+    colorPrimary: '#7D48E8',
+    colorPrimaryHover: '#915BFF',
+    colorPrimaryActive: '#6434C6',
   },
   components: {
     Input: {
@@ -14,8 +14,9 @@ export const AELFDProviderTheme: ThemeConfig = {
     },
     Table: {
       headerColor: 'var(--neutral-secondary)',
-      headerSplitColor: 'var(--neutral-white-bg)',
-      headerBg: 'var(--neutral-white-bg)',
+      headerSplitColor: 'var(--brand-bg)',
+      headerBg: 'var(--brand-bg)',
+      footerBg: 'var(--brand-bg)',
     },
     Layout: {
       bodyBg: 'var(--neutral-white-bg)',

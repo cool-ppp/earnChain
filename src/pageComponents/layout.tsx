@@ -108,13 +108,11 @@ const Layout = dynamic(async () => {
       <>
         {!isHiddenLayout ? (
           <AntdLayout
-            className={clsx(
-              'h-full flex flex-col overflow-scroll min-w-[360px] bg-brandBg px-4 lg:px-10',
-            )}
+            className={clsx('h-full flex flex-col overflow-scroll min-w-[360px] bg-brandBg')}
           >
             {!isHiddenHeader && <Header />}
             <div className="flex-1">
-              <AntdLayout.Content className={`pb-4 w-full max-w-[1360px] mx-auto`}>
+              <AntdLayout.Content className={`pb-4 w-full max-w-[1360px] mx-auto px-4 lg:px-10`}>
                 {children}
               </AntdLayout.Content>
             </div>

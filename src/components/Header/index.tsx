@@ -91,7 +91,7 @@ export default function Header() {
   };
 
   return (
-    <section className={clsx('sticky top-0 left-0 z-[100] flex-shrink-0')}>
+    <section className={clsx('sticky top-0 left-0 z-[100] flex-shrink-0 px-4 lg:px-10')}>
       <div className="h-[60px] lg:h-[80px] mx-auto flex justify-between items-center w-full">
         <div className="flex flex-1 overflow-hidden justify-start items-center">
           {

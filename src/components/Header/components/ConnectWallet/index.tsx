@@ -6,12 +6,10 @@ import useGetStoreInfo from 'redux/hooks/useGetStoreInfo';
 import { OmittedType, addPrefixSuffix, getOmittedStr } from 'utils/addressFormatting';
 
 export default function ConnectWallet() {
-  const { isLogin, hasToken } = useGetLoginStatus();
+  const { isLogin } = useGetLoginStatus();
   const { wallet } = useWalletService();
   const { cmsInfo } = useGetStoreInfo();
   const { checkLogin } = useCheckLoginAndToken();
-
-  console.log('isLogin', isLogin, hasToken);
 
   const formatAddress = useMemo(() => {
     const fullAddress = addPrefixSuffix(wallet.address, cmsInfo?.curChain);
@@ -19,7 +17,7 @@ export default function ConnectWallet() {
   }, [cmsInfo?.curChain, wallet.address]);
 
   return isLogin ? (
-    <div className="rounded-lg py-3 px-4 border-solid border-[1px] text-base font-medium text-neutralTitle border-lineDividers bg-neutralDefaultBg">
+    <div className="rounded-lg py-3 px-4 border-solid border-[1px] text-xs font-normal text-neutralPrimary border-neutralBorder bg-neutralDefaultBg">
       {formatAddress}
     </div>
   ) : (
