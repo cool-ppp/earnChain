@@ -112,7 +112,7 @@ const Layout = dynamic(async () => {
           >
             {!isHiddenHeader && <Header />}
             <div className="flex-1">
-              <AntdLayout.Content className={`pb-4 w-full max-w-[1360px] mx-auto px-4 lg:px-10`}>
+              <AntdLayout.Content className={`pb-4 w-full max-w-[1440px] mx-auto px-4 lg:px-10`}>
                 {children}
               </AntdLayout.Content>
             </div>

@@ -8,7 +8,7 @@ export default function ListCard() {
       <div className="flex flex-1 items-center justify-between">
         <div className="flex flex-col justify-between gap-2">
           <div className="text-base font-semibold">12,128.12 SGR</div>
-          <div className="text-sm font-medium">$ 2,267</div>
+          <div className="text-sm font-medium text-neutralSecondary">$ 2,267</div>
           <div className="flex items-center text-base font-semibold">
             <div className="text-green-400 mr-2">APR: 2.12%</div>
             <ToolTip title="tooltips">
@@ -28,7 +28,7 @@ export default function ListCard() {
             <span className="ml-2 text-sm">SGR</span>
           </div>
           <div className="text-base font-semibold ">0.00</div>
-          <div className="text-sm font-medium">$ 0</div>
+          <div className="text-sm font-medium text-neutralSecondary">$ 0</div>
         </div>
         <Button type="primary" ghost size="medium">
           Claim
