@@ -9,6 +9,8 @@ import clsx from 'clsx';
 import useGetLoginStatus from 'redux/hooks/useGetLoginStatus';
 import { useRouter } from 'next/navigation';
 import { useCheckLoginAndToken } from 'hooks/useWallet';
+import { useModal } from '@ebay/nice-modal-react';
+import GetPointsModal from '../GetPointsModal';
 
 export default function DappList() {
   const { isMD } = useResponsive();
@@ -16,6 +18,7 @@ export default function DappList() {
   const { isLogin } = useGetLoginStatus();
   const router = useRouter();
   const { checkLogin } = useCheckLoginAndToken();
+  const getPointsModal = useModal(GetPointsModal);
 
   useEffect(() => {
     setDataSource([
@@ -26,6 +29,8 @@ export default function DappList() {
         supportsApply: true,
         points: '12345678',
         address: '12345678',
+        rulesContent:
+          'rulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContent',
       },
       {
         dappName: 'ewell',
@@ -203,7 +208,7 @@ export default function DappList() {
               className="!px-0"
               size={isMD ? 'small' : 'medium'}
               onClick={() => {
-                // window.open(item.link, '_blank');
+                handleGainPoints(item);
               }}
             >
               <span
@@ -228,5 +233,18 @@ export default function DappList() {
       },
     },
   ];
+
+  const handleGainPoints = useCallback(
+    (item: any) => {
+      getPointsModal.show({
+        name: item.dappName,
+        desc: item.dappName,
+        icon: item.icon,
+        link: item.link,
+        rulesContent: item.rulesContent,
+      });
+    },
+    [getPointsModal],
+  );
   return <Table columns={columns} rowKey={'Name'} dataSource={dataSource} />;
 }
