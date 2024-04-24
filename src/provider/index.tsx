@@ -6,7 +6,7 @@ import enUS from 'antd/lib/locale/en_US';
 import WebLoginProvider from './webLoginProvider';
 import Loading from 'components/Loading/index';
 import { useState } from 'react';
-import { AELFDProviderTheme } from './config';
+import { AELFDProviderTheme, ANTDProviderTheme } from './config';
 import NiceModal from '@ebay/nice-modal-react';
 import dynamic from 'next/dynamic';
 
@@ -18,7 +18,7 @@ function Provider({ children }: { children: React.ReactNode }) {
     <>
       <StoreProvider>
         <AELFDProvider theme={AELFDProviderTheme}>
-          <ConfigProvider locale={enUS} autoInsertSpaceInButton={false}>
+          <ConfigProvider theme={ANTDProviderTheme} locale={enUS} autoInsertSpaceInButton={false}>
             {loading ? (
               <Loading />
             ) : (

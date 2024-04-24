@@ -35,3 +35,26 @@ export const AELFDProviderTheme: ThemeConfig = {
     },
   },
 };
+export const ANTDProviderTheme: ThemeConfig = {
+  token: {
+    colorPrimary: '#7D48E8',
+    colorPrimaryHover: '#915BFF',
+    colorPrimaryActive: '#6434C6',
+  },
+  components: {
+    // Input: {
+    //   borderRadius: 12,
+    //   borderRadiusSM: 12,
+    //   paddingInlineSM: 11,
+    //   paddingBlock: 11,
+    //   hoverBorderColor: '#7D48E8',
+    //   activeBorderColor: '#7D48E8',
+    // },
+    Form: {
+      itemMarginBottom: 48,
+      labelRequiredMarkColor: '#FF703D',
+      labelFontSize: 16,
+      verticalLabelMargin: '0 0 4px',
+    },
+  },
+};
