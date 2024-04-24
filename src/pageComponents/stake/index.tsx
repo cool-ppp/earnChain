@@ -26,7 +26,7 @@ export default function StakePage() {
   return (
     <div>
       <Breadcrumb
-        className="mt-[48px] mb-[32px]"
+        className="mt-[32px] lg:mt-[48px] mb-[20px] lg:mb-[32px]"
         items={[
           {
             title: (
