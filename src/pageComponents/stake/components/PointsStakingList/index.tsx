@@ -9,6 +9,7 @@ import { formatNumber, formatTokenPrice } from 'utils/format';
 import useResponsive from 'utils/useResponsive';
 import { useModal } from '@ebay/nice-modal-react';
 import ConfirmModal from '../../../../components/ConfirmModal';
+import { showTradeResTip } from 'utils/notification';
 
 enum ListTypeEnum {
   Staked = 'staked',
@@ -126,8 +127,12 @@ export default function PointsStakingList() {
       confirmBtnText: 'Confirm Claim',
       onConfirm: () => {
         console.log('claim confirm');
+        showTradeResTip({
+          status: 'error',
+          message: 'errorerrorerrorerror',
+        });
       },
-      loading: true,
+      loading: false,
     });
   }, [confirmModal]);
 

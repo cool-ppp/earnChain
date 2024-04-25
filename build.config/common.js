@@ -19,4 +19,14 @@ module.exports = {
     config.ignoreWarnings = [{ module: /node_modules/ }];
     return config;
   },
+
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/stake',
+        permanent: true,
+      },
+    ];
+  },
 };

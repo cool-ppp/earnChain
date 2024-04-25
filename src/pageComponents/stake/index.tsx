@@ -16,7 +16,7 @@ export default function StakePage() {
   }, [dappName]);
 
   const onBack = useCallback(() => {
-    router.replace('/');
+    router.replace('/stake');
   }, [router]);
 
   if (decodeAppName !== 'Schrödinger') {

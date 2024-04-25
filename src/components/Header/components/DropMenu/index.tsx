@@ -20,7 +20,7 @@ interface IDropMenuMy {
 const menuItems = [
   {
     label: 'Points Staking',
-    href: '/',
+    href: '/stake',
   },
   {
     label: 'Simple Staking',
