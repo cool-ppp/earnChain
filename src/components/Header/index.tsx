@@ -28,7 +28,7 @@ export default function Header() {
     return [
       {
         title: 'Points Staking',
-        schema: '/',
+        schema: '/stake',
       },
       {
         title: 'Simple Staking',
@@ -54,6 +54,7 @@ export default function Header() {
           return;
         }
       }
+      router.push(schema || '/');
       setMenuModalVisibleModel(false);
     },
     [checkLogin, isLogin, router],

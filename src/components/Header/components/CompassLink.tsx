@@ -1,12 +1,17 @@
 import { IMenuItem } from '../type';
 import { usePathname } from 'next/navigation';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import styles from '../style.module.css';
 import clsx from 'clsx';
 
 export const CompassText = (props: { title?: string; schema?: string }) => {
   const pathname = usePathname();
-  const isCurrent = pathname?.toLocaleLowerCase() === props.schema?.toLowerCase();
+
+  const isCurrent = useMemo(() => {
+    return props.schema
+      ? pathname?.toLocaleLowerCase().includes(props.schema?.toLowerCase())
+      : false;
+  }, [pathname, props.schema]);
 
   return (
     <span
