@@ -42,16 +42,13 @@ export const ANTDProviderTheme: ThemeConfig = {
     colorPrimaryActive: '#6434C6',
   },
   components: {
-    // Input: {
-    //   borderRadius: 12,
-    //   borderRadiusSM: 12,
-    //   paddingInlineSM: 11,
-    //   paddingBlock: 11,
-    //   hoverBorderColor: '#7D48E8',
-    //   activeBorderColor: '#7D48E8',
-    // },
+    Input: {
+      borderRadius: 12,
+      paddingBlock: 11,
+      inputFontSize: 16,
+    },
     Form: {
-      itemMarginBottom: 48,
+      itemMarginBottom: 36,
       labelRequiredMarkColor: '#FF703D',
       labelFontSize: 16,
       verticalLabelMargin: '0 0 4px',

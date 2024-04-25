@@ -1,8 +1,10 @@
-// import { Input, InputProps } from 'antd';
-import { Input, IInputProps } from 'aelf-design';
-import { useCallback, useMemo, useState } from 'react';
+import { Input, InputProps } from 'antd';
+import { ZERO } from 'constants/index';
+import { useCallback, useMemo } from 'react';
+import { isPotentialNumber } from 'utils/format';
 
-interface IInputNumberBaseProps extends Omit<IInputProps, 'type' | 'onChange'> {
+interface IInputNumberBaseProps extends Omit<InputProps, 'type' | 'onChange'> {
+  decimal?: number;
   onChange?: (val: string) => void;
   suffixText?: string;
   suffixClick?: (val: string) => void;
@@ -10,6 +12,7 @@ interface IInputNumberBaseProps extends Omit<IInputProps, 'type' | 'onChange'> {
 
 export default function InputNumberBase({
   value,
+  decimal,
   onChange,
   suffixText,
   suffixClick,
@@ -29,12 +32,26 @@ export default function InputNumberBase({
 
   const onInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const val = e.target.value;
-      console.log('onchange', val);
+      const inputVal = e.target.value;
+      const parseStr = inputVal.replace(',', '');
+      let val = '';
+      console.log('onchange', inputVal);
+      if (!parseStr || !isPotentialNumber(parseStr)) {
+        val = '';
+      } else if (inputVal.endsWith('.')) {
+        val = inputVal;
+      } else {
+        const decimalCount = parseStr.split('.')[1]?.length || 0;
+
+        val = ZERO.plus(parseStr).toFormat(
+          !decimal || decimalCount <= decimal ? undefined : decimal,
+        );
+      }
+      console.log('onInputChange', val);
       onChange?.(val);
     },
-    [onChange],
+    [decimal, onChange],
   );
 
-  return <Input type="number" value={value} suffix={suffix} onChange={onInputChange} {...rest} />;
+  return <Input value={value} suffix={suffix} onChange={onInputChange} {...rest} />;
 }

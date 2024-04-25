@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import { ZERO } from 'constants/index';
 
 export function formatTime({
   minDigits = 2,
@@ -100,3 +101,8 @@ export function formatNumber(
   }
   return BigNumber.isBigNumber(number) ? number.toNumber() : number;
 }
+
+export const POTENTIAL_NUMBER = /^(0|[1-9]\d*)(\.\d*)?$/;
+export const isPotentialNumber = (str: string) => {
+  return POTENTIAL_NUMBER.test(str);
+};

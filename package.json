@@ -31,6 +31,7 @@
     "antd": "^5.x",
     "antd-style": "^3.6.1",
     "axios": "^0.24.0",
+    "bignumber.js": "^9.1.2",
     "clsx": "^2.1.1",
     "elliptic": "^6.5.4",
     "eslint-plugin-no-inline-styles": "^1.0.5",
