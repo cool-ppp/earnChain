@@ -1,18 +1,26 @@
 import { useCallback } from 'react';
 import StackCard from './components/StackCard';
-import StackModal from 'components/StackModal';
 import StackList from './components/StackList';
-import { useModal } from '@ebay/nice-modal-react';
+import useGetLoginStatus from 'redux/hooks/useGetLoginStatus';
+import { useCheckLoginAndToken } from 'hooks/useWallet';
+import useStack from 'hooks/useStack';
 
 export default function Simple() {
-  const stackModal = useModal(StackModal);
+  const { isLogin } = useGetLoginStatus();
+  const { checkLogin } = useCheckLoginAndToken();
+  const stack = useStack();
 
   const onStack = useCallback(() => {
     console.log('onStack');
-    stackModal.show({
-      tokenName: 'SGR',
-    });
-  }, [stackModal]);
+    if (!isLogin) {
+      return checkLogin({
+        onSuccess: () => {
+          stack();
+        },
+      });
+    }
+    stack();
+  }, [checkLogin, isLogin, stack]);
 
   return (
     <div className="">

@@ -33,6 +33,7 @@
     "axios": "^0.24.0",
     "bignumber.js": "^9.1.2",
     "clsx": "^2.1.1",
+    "dayjs": "^1.11.10",
     "elliptic": "^6.5.4",
     "eslint-plugin-no-inline-styles": "^1.0.5",
     "firebase": "^9.23.0",
