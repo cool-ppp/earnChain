@@ -1,13 +1,13 @@
 .segmented{
-  @apply border-neutralBorder rounded-lg p-1 border-[1px] border-solid bg-neutralWhiteBg;
+  @apply border-neutralBorder rounded-lg p-1 border-[1px] border-solid;
   :global{
-    .ant-segmented-group{
+    .earn-segmented-group{
       @apply gap-1;
     }
-    .ant-segmented-item {
+    .earn-segmented-item {
       @apply min-w-[126px] rounded-md flex justify-center items-center text-neutralSecondary font-medium text-base hover:!text-brandHover !transition-none h-[40px];
     }
-    .ant-segmented-item-selected {
+    .earn-segmented-item-selected {
       @apply bg-brandDefault text-white font-semibold hover:!text-white active:!text-white hover:!bg-brandDefault;
     }
   }

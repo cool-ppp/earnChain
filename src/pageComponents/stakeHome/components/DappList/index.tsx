@@ -10,104 +10,56 @@ import useGetLoginStatus from 'redux/hooks/useGetLoginStatus';
 import { useRouter } from 'next/navigation';
 import { useCheckLoginAndToken } from 'hooks/useWallet';
 import { useModal } from '@ebay/nice-modal-react';
-import GetPointsModal from '../GetPointsModal';
+import GetPointsModal, { IPointsModalProps } from '../GetPointsModal';
+import useGetCmsInfo from 'redux/hooks/useGetCmsInfo';
 
-export default function DappList() {
+export default function DappList({
+  items,
+  loading,
+}: {
+  items: Array<IStakingItem>;
+  loading: boolean;
+}) {
   const { isMD, isLG } = useResponsive();
-  const [dataSource, setDataSource] = useState<Array<any>>([]);
+  const [dataSource, setDataSource] = useState<Array<IStakingItem>>([]);
   const { isLogin } = useGetLoginStatus();
   const router = useRouter();
   const { checkLogin } = useCheckLoginAndToken();
   const getPointsModal = useModal(GetPointsModal);
+  const { schrodingerGainPointsRule, schrodingerUrl } = useGetCmsInfo() || {};
 
   useEffect(() => {
     setDataSource([
       {
         dappName: 'Schrödinger',
+        projectOwner: 'Schrödinger11',
         icon: 'https://schrodinger-testnet.s3.ap-northeast-1.amazonaws.com/Schrodinger.png',
-        link: 'https://schrodingernft.ai',
-        supportsApply: true,
-        points: '12345678',
-        address: '12345678',
-        rulesContent:
-          'rulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContent',
+        isOpenStake: true,
+        tvl: 12345678,
+        stakingAddress: 12345678,
       },
       {
-        dappName: 'ewell',
-        icon: 'https://schrodinger-testnet.s3.ap-northeast-1.amazonaws.com/Ewell.png',
-        link: 'https://ewell.finance/',
-        points: '12345678',
-        address: '12345678',
-        supportsApply: false,
-      },
-      {
-        dappName: 'AwakenSwap',
-        icon: 'https://schrodinger-testnet.s3.ap-northeast-1.amazonaws.com/Awaken.png',
-        link: 'https://awaken.finance/',
-        supportsApply: false,
-        points: '12345678',
-        address: '12345678',
-      },
-      {
-        dappName: 'Portkey',
-        icon: 'https://schrodinger-testnet.s3.ap-northeast-1.amazonaws.com/Portkey.png',
-        link: 'https://portkey.finance/',
-        supportsApply: false,
-        points: '12345678',
-        address: '12345678',
-      },
-      {
-        dappName: 'eBridge',
-        icon: 'https://schrodinger-testnet.s3.ap-northeast-1.amazonaws.com/eBrige.png',
-        link: 'https://ebridge.exchange/',
-        supportsApply: false,
-        points: '12345678',
-        address: '12345678',
-      },
-      {
-        dappName: 'Forest',
-        icon: 'https://schrodinger-testnet.s3.ap-northeast-1.amazonaws.com/Forest.png',
-        category: 'NFT',
-        link: 'https://eforest.finance/',
-        supportsApply: false,
-        points: '12345678',
-        address: '12345678',
-      },
-      {
-        dappName: 'BeanGo Town',
-        icon: 'https://schrodinger-testnet.s3.ap-northeast-1.amazonaws.com/BeanGoTown.png',
-        link: 'https://www.beangotown.com/',
-        secondLevelDomain: '',
-        firstLevelDomain: '',
-        supportsApply: false,
-        points: '12345678',
-        address: '12345678',
-      },
-      {
-        dappName: 'Symbol Market',
-        icon: 'https://schrodinger-testnet.s3.ap-northeast-1.amazonaws.com/TSM.png',
-        link: 'https://symbolmarket.io/',
-        supportsApply: false,
-        points: '12345678',
-        address: '12345678',
-      },
-      {
-        dappName: 'ETransfer',
-        icon: 'https://schrodinger-testnet.s3.ap-northeast-1.amazonaws.com/ETransfer.png',
-        link: 'https://etransfer.exchange',
-        supportsApply: false,
-        points: '12345678',
-        address: '12345678',
+        dappName: 'Schrödinger',
+        projectOwner: 'Schrödinger11',
+        icon: 'https://schrodinger-testnet.s3.ap-northeast-1.amazonaws.com/Schrodinger.png',
+        isOpenStake: false,
+        tvl: 12345678,
+        stakingAddress: 12345678,
       },
     ]);
   }, []);
 
-  const handleClick = (item: any) => {
-    window.open(item.link);
-  };
+  const handleClick = useCallback(
+    (item: IStakingItem) => {
+      if (item.dappName === 'Schrödinger') {
+        window.open(schrodingerUrl || '');
+      }
+    },
+    [schrodingerUrl],
+  );
 
   const handleStake = useCallback(
-    (item: any) => {
+    (item: IStakingItem) => {
       const stakeUrl = `/stake/${encodeURI(item.dappName)}`;
       if (!isLogin) {
         checkLogin({
@@ -123,23 +75,28 @@ export default function DappList() {
   );
 
   const handleGainPoints = useCallback(
-    (item: any) => {
-      getPointsModal.show({
+    (item: IStakingItem) => {
+      const params: IPointsModalProps = {
         name: item.dappName,
-        desc: item.dappName,
+        desc: item.projectOwner,
         icon: item.icon,
-        link: item.link,
-        rulesContent: item.rulesContent,
-      });
+        handleConfirm: () => {
+          handleClick(item);
+        },
+      };
+      if (item.dappName === 'Schrödinger') {
+        params.rulesContent = schrodingerGainPointsRule;
+      }
+      getPointsModal.show(params);
     },
-    [getPointsModal],
+    [getPointsModal, handleClick, schrodingerGainPointsRule],
   );
 
-  const columns: TableColumnsType<any> = useMemo(() => {
+  const columns: TableColumnsType<IStakingItem> = useMemo(() => {
     return [
       {
         title: 'Name',
-        key: 'Name',
+        key: 'dappName',
         dataIndex: 'dappName',
         width: isLG ? 'auto' : 360,
         render: (text: string, item) => {
@@ -171,8 +128,8 @@ export default function DappList() {
       },
       {
         title: 'Points',
-        key: 'Points',
-        dataIndex: 'points',
+        key: 'tvl',
+        dataIndex: 'tvl',
         width: isLG ? 'auto' : 330,
         // responsive: ['md'],
         render: (text: string) => {
@@ -183,8 +140,8 @@ export default function DappList() {
       },
       {
         title: 'Staking Address',
-        key: 'address',
-        dataIndex: 'address',
+        key: 'stakingAddress',
+        dataIndex: 'stakingAddress',
         width: isLG ? 'auto' : 330,
         // responsive: ['md'],
         render: (text: string) => {
@@ -210,16 +167,16 @@ export default function DappList() {
               >
                 <Button
                   type="primary"
-                  disabled={!item.supportsApply}
+                  disabled={!item.isOpenStake}
                   className="w-[98px] md:w-[136px]"
                   size={isMD ? 'small' : 'medium'}
                 >
-                  {item.supportsApply ? 'Stake' : 'Coming Soon'}
+                  {item.isOpenStake ? 'Stake' : 'Coming Soon'}
                 </Button>
               </Link>
               <Button
                 type="link"
-                disabled={!item.supportsApply}
+                disabled={!item.isOpenStake}
                 className="!px-0"
                 size={isMD ? 'small' : 'medium'}
                 onClick={() => {
@@ -229,7 +186,7 @@ export default function DappList() {
                 <span
                   className={clsx(
                     'text-brandDefault hover:text-brandHover',
-                    !item.supportsApply && 'text-brandDisable',
+                    !item.isOpenStake && 'text-brandDisable',
                   )}
                 >
                   {isMD ? 'Gain' : 'Gain points'}
@@ -237,7 +194,7 @@ export default function DappList() {
                 <RightOutlined
                   className={clsx(
                     'w-4 h-4 text-brandDefault ml-1 md:ml-4',
-                    !item.supportsApply && 'text-brandDisable',
+                    !item.isOpenStake && 'text-brandDisable',
                   )}
                   width={20}
                   height={20}
@@ -248,13 +205,14 @@ export default function DappList() {
         },
       },
     ];
-  }, [handleGainPoints, handleStake, isLG, isMD]);
+  }, [handleClick, handleGainPoints, handleStake, isLG, isMD]);
 
   return (
     <Table
       columns={columns}
-      rowKey={'Name'}
-      dataSource={dataSource}
+      rowKey={'dappName'}
+      dataSource={items || dataSource}
+      loading={loading}
       scroll={{ x: 'max-content' }}
     />
   );

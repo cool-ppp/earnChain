@@ -6,8 +6,7 @@ export interface IPointsModalProps {
   icon: string;
   name: string;
   desc: string;
-  rulesContent: string;
-  link: string;
+  rulesContent?: string;
   handleConfirm?: () => void;
   confirmText?: string;
 }
@@ -18,7 +17,6 @@ function GetPointsModal({
   desc,
   rulesContent,
   confirmText = 'Gain points',
-  link,
   handleConfirm,
 }: IPointsModalProps) {
   const modal = useModal();
@@ -32,7 +30,6 @@ function GetPointsModal({
           type="primary"
           onClick={() => {
             handleConfirm?.();
-            window.open(link, 'blank');
           }}
         >
           {confirmText}
@@ -54,7 +51,9 @@ function GetPointsModal({
           <span className="text-neutralSecondary">{desc}</span>
         </div>
       </div>
-      <div className="text-base break-all text-neutralPrimary mt-5">{rulesContent}</div>
+      {rulesContent && (
+        <div className="text-base break-all text-neutralPrimary mt-5">{rulesContent}</div>
+      )}
     </CommonModal>
   );
 }

@@ -8,8 +8,6 @@ export type InfoStateType = {
     // some config
   };
   cmsInfo?: {
-    isShowRampBuy: boolean;
-    isShowRampSell: boolean;
     networkType: 'TESTNET' | 'MAIN';
     networkTypeV2: 'TESTNET' | 'MAINNET';
     connectUrlV2: string;
@@ -19,6 +17,12 @@ export type InfoStateType = {
     rpcUrlAELF: string;
     rpcUrlTDVW: string;
     rpcUrlTDVV: string;
+    schrodingerGainPointsRule: string;
+    schrodingerUrl: string;
+    explorerUrl: string;
+    sgrStakingPointsDesc: string;
+    sgrStakingPointsTopDesc: string;
+    sgrStakingPointsLabel: string;
     [key: string]: any;
   };
 };

@@ -147,8 +147,8 @@ export const useGetToken = () => {
       const res = await getTokenFromServer({
         params: {
           grant_type: 'signature',
-          scope: 'SchrodingerServer',
-          client_id: 'SchrodingerServer_App',
+          scope: 'FarmServer',
+          client_id: 'FarmServer_App',
           timestamp,
           signature,
           source,

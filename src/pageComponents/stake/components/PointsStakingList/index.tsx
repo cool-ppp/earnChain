@@ -1,23 +1,64 @@
 import { Button, ToolTip } from 'aelf-design';
-import { ReactNode, useCallback, useEffect, useState } from 'react';
+import { ReactNode, useCallback, useMemo } from 'react';
 import { Flex, Segmented } from 'antd';
+import { ReactComponent as QuestionIconComp } from 'assets/img/questionCircleOutlined.svg';
 import clsx from 'clsx';
 import styles from './style.module.css';
 import useGetLoginStatus from 'redux/hooks/useGetLoginStatus';
 import { useCheckLoginAndToken } from 'hooks/useWallet';
-import { formatNumber, formatTokenPrice } from 'utils/format';
+import { formatTokenPrice } from 'utils/format';
 import useResponsive from 'utils/useResponsive';
 import { useModal } from '@ebay/nice-modal-react';
 import ConfirmModal from '../../../../components/ConfirmModal';
 import { showTradeResTip } from 'utils/notification';
+import usePointsPoolService, {
+  ListTypeEnum,
+} from 'pageComponents/stake/hooks/usePointsPoolService';
 
-enum ListTypeEnum {
-  Staked = 'staked',
-  All = 'all',
-}
-
-export function PointsStakeItem({ handleClaim }: { handleClaim: () => void }) {
+export function PointsStakeItem({ item }: { item: IPointsPoolItem }) {
   const { isLG } = useResponsive();
+  const confirmModal = useModal(ConfirmModal);
+
+  const handleClaim = useCallback(() => {
+    confirmModal.show({
+      title: 'lingqujiangli',
+      content: `You will claim ${item.earned} SGR`,
+      subContent: 'blalalallaalallalallalalblalalallaalallalallalal',
+      confirmBtnText: 'Confirm Claim',
+      onConfirm: () => {
+        showTradeResTip({
+          status: 'error',
+          message: 'errorerrorerrorerror',
+        });
+      },
+      loading: false,
+    });
+  }, [confirmModal, item.earned]);
+
+  const dailyRewards = useMemo(() => {
+    return formatTokenPrice(item.dailyRewards, { decimalPlaces: 2 });
+  }, [item.dailyRewards]);
+
+  const poolDailyRewards = useMemo(() => {
+    return formatTokenPrice(item.poolDailyRewards, { decimalPlaces: 2 });
+  }, [item.poolDailyRewards]);
+
+  const totalStake = useMemo(() => {
+    return formatTokenPrice(item.totalStake, { decimalPlaces: 2 });
+  }, [item.totalStake]);
+
+  const staked = useMemo(() => {
+    return formatTokenPrice(item.staked, { decimalPlaces: 2 });
+  }, [item.staked]);
+
+  const earned = useMemo(() => {
+    return formatTokenPrice(item.earned, { decimalPlaces: 2 });
+  }, [item.earned]);
+
+  const claimDisabled = useMemo(() => {
+    return item.earned === 0;
+  }, [item.earned]);
+
   return (
     <div className="rounded-[12px] lg:rounded-[24px] px-4 py-6 lg:p-6 border-[1px] border-solid border-neutralBorder bg-white">
       <Flex
@@ -25,31 +66,35 @@ export function PointsStakeItem({ handleClaim }: { handleClaim: () => void }) {
         align={isLG ? 'start' : 'center'}
         vertical={isLG ? true : false}
       >
-        <span className="text-2xl font-semibold text-neutralPrimary">XPSGR-1</span>
-        <span className="text-sm font-medium text-brandDefault">
-          1w reward points/day :{formatTokenPrice(1899999.234324, { decimalPlaces: 2 })} SGR
-        </span>
+        <span className="text-2xl font-semibold text-neutralPrimary">{item.poolName}</span>
+        <Flex align="center">
+          <span className="text-sm font-medium text-brandDefault">
+            1w reward points/day : {dailyRewards} SGR
+          </span>
+          <ToolTip title="aaaaa">
+            <QuestionIconComp className="w-4 h-4 ml-1 cursor-pointer" width={16} height={16} />
+          </ToolTip>
+        </Flex>
       </Flex>
       <Flex className="mt-2 text-sm font-medium" justify="space-between">
         <Flex
           className="text-neutralTertiary"
           justify="space-between"
+          gap={isLG ? 0 : 8}
           vertical={isLG ? true : false}
         >
           Pool reward/day:
-          <span className="text-neutralPrimary">
-            {formatTokenPrice(212989, { decimalPlaces: 2 })} SGR
-          </span>
+          <span className="text-neutralPrimary">{poolDailyRewards} SGR</span>
         </Flex>
         <Flex
           className="text-neutralTertiary"
           justify="space-between"
+          align="end"
           vertical={isLG ? true : false}
+          gap={isLG ? 0 : 8}
         >
           Total staked:
-          <span className="text-neutralPrimary">
-            {formatTokenPrice(1899999.234324, { decimalPlaces: 2 })} SGR
-          </span>
+          <span className="text-neutralPrimary">{totalStake}</span>
         </Flex>
       </Flex>
       <Flex gap={24} vertical={isLG ? true : false} className="mt-4">
@@ -59,9 +104,14 @@ export function PointsStakeItem({ handleClaim }: { handleClaim: () => void }) {
           className="p-4 rounded-[16px] bg-brandBg flex-auto"
         >
           <Flex vertical gap={8}>
-            <span className="text-base font-medium text-neutralPrimary">Staked</span>
+            <Flex align="center">
+              <span className="text-base font-medium text-neutralPrimary">Staked</span>
+              <ToolTip title="aaaaa">
+                <QuestionIconComp className="w-4 h-4 ml-1 cursor-pointer" width={16} height={16} />
+              </ToolTip>
+            </Flex>
             <Flex gap={8} align="end">
-              <span className="text-neutralTitle text-base font-medium">12,214,658</span>
+              <span className="text-neutralTitle text-base font-medium">{staked}</span>
               <span className="text-xs font-normal text-neutralPrimary">XPSGR-1</span>
             </Flex>
           </Flex>
@@ -74,13 +124,17 @@ export function PointsStakeItem({ handleClaim }: { handleClaim: () => void }) {
           <Flex vertical gap={8}>
             <span className="text-base font-medium text-neutralPrimary">Earned</span>
             <Flex gap={8} align="end">
-              <span className="text-neutralTitle text-base font-medium">12,128</span>
+              <span className="text-neutralTitle text-base font-medium">{earned}</span>
               <span className="text-xs font-normal text-neutralPrimary">SGR</span>
             </Flex>
           </Flex>
-          {/* //TODO:disabled */}
-          <ToolTip title="claim">
-            <Button size={isLG ? 'small' : 'medium'} type="primary" onClick={handleClaim}>
+          <ToolTip title={claimDisabled ? 'claim' : undefined}>
+            <Button
+              size={isLG ? 'small' : 'medium'}
+              type="primary"
+              onClick={handleClaim}
+              disabled={claimDisabled}
+            >
               Claim
             </Button>
           </ToolTip>
@@ -91,12 +145,10 @@ export function PointsStakeItem({ handleClaim }: { handleClaim: () => void }) {
 }
 
 export default function PointsStakingList() {
-  const [data, setData] = useState<Array<any>>([]);
-  const [currentList, setCurrentList] = useState<ListTypeEnum>(ListTypeEnum.All);
+  const { currentList, setCurrentList, data, fetchData } = usePointsPoolService();
   const { isLogin } = useGetLoginStatus();
   const { checkLogin } = useCheckLoginAndToken();
   const { isLG } = useResponsive();
-  const confirmModal = useModal(ConfirmModal);
 
   const segmentedOptions: Array<{ label: ReactNode; value: string }> = [
     { label: 'All', value: ListTypeEnum.All },
@@ -105,40 +157,22 @@ export default function PointsStakingList() {
 
   const handleSegmentChange = useCallback(
     (value: string) => {
-      if (value === ListTypeEnum.Staked && !isLogin) {
-        checkLogin({
-          onSuccess: () => {
-            setCurrentList(value as ListTypeEnum);
-          },
-        });
-        return;
-      }
       setCurrentList(value as ListTypeEnum);
     },
-    [checkLogin, isLogin],
+    [setCurrentList],
   );
 
-  const handleClaim = useCallback(() => {
-    confirmModal.show({
-      //TODO:
-      title: 'lingqujiangli',
-      content: 'You will claim 24234 SGR',
-      subContent: 'blalalallaalallalallalalblalalallaalallalallalal',
-      confirmBtnText: 'Confirm Claim',
-      onConfirm: () => {
-        console.log('claim confirm');
-        showTradeResTip({
-          status: 'error',
-          message: 'errorerrorerrorerror',
-        });
-      },
-      loading: false,
-    });
-  }, [confirmModal]);
-
-  useEffect(() => {
-    //loading and  getData
-  }, [currentList]);
+  const mockData = [
+    {
+      poolName: 'XPSGR-1',
+      dailyRewards: 100,
+      poolDailyRewards: 100,
+      totalStake: 12,
+      surplusStake: 10,
+      earned: 10,
+      staked: 10,
+    },
+  ];
 
   return (
     <>
@@ -151,12 +185,35 @@ export default function PointsStakingList() {
         options={segmentedOptions}
         block={isLG ? true : false}
       />
-      {/* <div className="py-10 text-center">no data</div> */}
-      <div className="grid lg:grid-cols-2 grid-cols-1 gap-4 lg:gap-6 mt-4 lg:mt-6">
-        {[1, 2, 3, 4].map((_, index) => {
-          return <PointsStakeItem key={index} handleClaim={handleClaim} />;
-        })}
-      </div>
+
+      {!isLogin && currentList === ListTypeEnum.Staked ? (
+        <div className="py-[200px] rounded-lg bg-neutralWhiteBg flex justify-center items-center gap-2  mt-4 lg:mt-6">
+          <span>.....</span>
+          <Button
+            type="primary"
+            size="medium"
+            onClick={() => {
+              checkLogin({
+                onSuccess: () => {
+                  fetchData();
+                },
+              });
+            }}
+          >
+            Connect Wallet
+          </Button>
+        </div>
+      ) : (data || mockData)?.length && (data || mockData).length > 0 ? (
+        <div className="grid lg:grid-cols-2 grid-cols-1 gap-4 lg:gap-6 mt-4 lg:mt-6">
+          {(data || mockData).map((item, index) => {
+            return <PointsStakeItem key={index} item={item} />;
+          })}
+        </div>
+      ) : (
+        <div className="py-[200px] rounded-lg bg-neutralWhiteBg flex justify-center items-center mt-4 lg:mt-6">
+          no data
+        </div>
+      )}
     </>
   );
 }
