@@ -29,7 +29,7 @@ export default function ConnectWallet() {
   }, [fullAddress, width]);
 
   return isLogin ? (
-    <div className="rounded-lg px-2 py-1 lg:py-2 lg:px-4 border-solid border-[1px] text-xs leading-[1] font-normal text-neutralPrimary border-neutralBorder bg-neutralWhiteBg">
+    <div className="rounded-lg px-2 py-1 lg:py-2 lg:px-4 border-solid border-[1px] text-xs leading-[1] font-normal text-neutralPrimary border-neutralBorder hover:border-brandHover">
       <CommonCopy toCopy={fullAddress}>{formatAddress}</CommonCopy>
     </div>
   ) : (

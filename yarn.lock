@@ -3471,7 +3471,7 @@ aggregate-error@^3.0.0:
     clean-stack "^2.0.0"
     indent-string "^4.0.0"
 
-ahooks@^3.7.6, ahooks@^3.7.7:
+ahooks@^3.7.11, ahooks@^3.7.6, ahooks@^3.7.7:
   version "3.7.11"
   resolved "https://registry.npmmirror.com/ahooks/-/ahooks-3.7.11.tgz#51b6fdcad8cb603511318ac370feee0628bd6d68"
   integrity sha512-BfSq7HJ9wk/7a2vX7WbLdwzHyQHmbNe21ipX1PfIzssXIzQfAl79WVJ9GjZaqNl4PFPsJusj/Xjg2OF+gIgGaQ==

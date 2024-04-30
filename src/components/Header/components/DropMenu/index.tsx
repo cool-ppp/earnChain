@@ -6,6 +6,8 @@ import { ReactComponent as MenuIcon } from 'assets/img/menu.svg';
 import { useWalletService } from 'hooks/useWallet';
 import useGetLoginStatus from 'redux/hooks/useGetLoginStatus';
 import ConnectWallet from '../ConnectWallet';
+import useGetCmsInfo from 'redux/hooks/useGetCmsInfo';
+import { addPrefixSuffix } from 'utils/addressFormatting';
 
 export enum DropMenuTypeEnum {
   My = 'my',
@@ -45,8 +47,9 @@ export function DropMenu({ isMobile, type }: IDropMenuMy) {
   const [showDropMenu, setShowDropMenu] = useState(false);
   const pathName = usePathname();
   const router = useRouter();
-  const { logout } = useWalletService();
+  const { logout, wallet } = useWalletService();
   const { isLogin } = useGetLoginStatus();
+  const { explorerUrl, curChain } = useGetCmsInfo() || {};
 
   const menu: Array<{
     label: string;
@@ -54,6 +57,10 @@ export function DropMenu({ isMobile, type }: IDropMenuMy) {
   }> = useMemo(() => {
     return type === DropMenuTypeEnum.My ? menuItemsMy : menuItems;
   }, [type]);
+
+  const addressExploreUrl = useMemo(() => {
+    return `${explorerUrl}/address/${addPrefixSuffix(wallet.address, curChain)}`;
+  }, [curChain, explorerUrl, wallet.address]);
 
   const onClickHandler = useCallback(
     (ele: IMenuItem) => {
@@ -63,14 +70,14 @@ export function DropMenu({ isMobile, type }: IDropMenuMy) {
         return;
       }
       if (ele.label === 'View on Explorer') {
-        // goto explore
+        window.open(addressExploreUrl);
         return;
       }
       if (ele.href) {
         router.push(ele.href);
       }
     },
-    [logout, router],
+    [addressExploreUrl, logout, router],
   );
 
   const items = useMemo(() => {

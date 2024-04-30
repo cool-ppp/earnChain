@@ -13,6 +13,10 @@ const initialState: InfoStateType = {
   cmsInfo: {
     curChain: 'tDVW',
     forestUrl: 'https://test.eforest.finance',
+    schrodingerUrl: 'https://schrodingerai.com',
+    explorerUrl: 'https://explorer-test.aelf.io',
+    schrodingerGainPointsRule:
+      'rulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContentrulesContent',
     ifpsPrefix: 'https://ipfs.schrodingerai.com/ipfs',
     rpcUrlAELF: 'https://aelf-test-node.aelf.io',
     rpcUrlTDVV: 'https://tdvv-test-node.aelf.io',
@@ -24,10 +28,9 @@ const initialState: InfoStateType = {
     graphqlServerV2:
       'https://dapp-aa-portkey-test.portkey.finance/Portkey_V2_DID/PortKeyIndexerCASchema/graphql',
     portkeyServerV2: 'https://aa-portkey-test.portkey.finance',
-    tokenMainAddress: 'JRmBduh4nXWi1aXgdUsj5gJrzeZb2LxmrAbf7W99faZSvoAaE',
-    tokenSideAddress: 'ASh2Wt7nSEmYqnGxPPzp4pnVDU4uhj1XW9Se5VeZcX2UDdyjx',
-    isShowRampBuy: true,
-    isShowRampSell: false,
+    sgrStakingPointsDesc: 'Multiple points pledge, get more revenue',
+    sgrStakingPointsTopDesc: 'XPSGR Points Staking',
+    sgrStakingPointsLabel: 'Phase one',
   },
 };
 
