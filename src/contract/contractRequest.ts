@@ -160,7 +160,6 @@ export default class ContractRequest {
     return this.caContractProvider;
   };
 
-
   public async callSendMethod<T, R>(params: CallContractParams<T>, sendOptions?: SendOptions) {
     if (this.walletType === WalletType.unknown) {
       throw new Error('Wallet not login');
@@ -302,7 +301,11 @@ export default class ContractRequest {
     const chainsInfo = await did.services.getChainsInfo();
     const result = await Promise.all(
       chainsInfo.map(async (item) => {
-        const contract = await this.getViewContracts(item.endPoint, item.chainId, item.caContractAddress);
+        const contract = await this.getViewContracts(
+          item.endPoint,
+          item.chainId,
+          item.caContractAddress,
+        );
         const info = await contract.callViewMethod('GetHolderInfo', {
           caHash,
         });

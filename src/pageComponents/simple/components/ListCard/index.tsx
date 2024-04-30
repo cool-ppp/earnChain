@@ -11,9 +11,9 @@ export default function ListCard() {
           <div className="text-sm font-medium text-neutralSecondary">$ 2,267</div>
           <div className="flex items-center text-base font-semibold">
             <div className="text-green-400 mr-2">APR: 2.12%</div>
-            <ToolTip title="tooltips">
+            {/* <ToolTip title="tooltips">
               <QuestionSVG />
-            </ToolTip>
+            </ToolTip> */}
           </div>
         </div>
         <Button type="primary" size="medium">

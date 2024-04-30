@@ -1,5 +1,10 @@
 import BigNumber from 'bignumber.js';
 import { ZERO } from 'constants/index';
+import { DEFAULT_MIN_AMOUNT } from 'constants/stack';
+import { ONE_DAY_IN_MS, ONE_HOUR_IN_MS, ONE_MINUTE_IN_MS } from 'constants/stack';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+dayjs.extend(duration);
 
 export function formatTime({
   minDigits = 2,
@@ -106,3 +111,40 @@ export const POTENTIAL_NUMBER = /^(0|[1-9]\d*)(\.\d*)?$/;
 export const isPotentialNumber = (str: string) => {
   return POTENTIAL_NUMBER.test(str);
 };
+
+export function formatNumberWithDecimal(val: number | string | BigNumber, decimal = 2) {
+  const _val = ZERO.plus(val);
+  if (_val.isNaN()) return '';
+  return _val.toFormat(decimal);
+}
+
+export function formatTokenAmount(val: string | number, min = DEFAULT_MIN_AMOUNT) {
+  const _val = ZERO.plus(val);
+  if (_val.isNaN() || _val.lte('0')) return '0.00';
+  if (_val.gt(0) && _val.lt(min)) return `< ${min}`;
+  return formatNumberWithDecimal(_val);
+}
+
+export function formatUSDAmount(val: string | number, min = DEFAULT_MIN_AMOUNT) {
+  const _val = ZERO.plus(val);
+  if (_val.isNaN() || _val.lte('0')) return '$0';
+  if (_val.gt(0) && _val.lt(min)) return `< $${min}`;
+  return `$${formatNumberWithDecimal(_val)}`;
+}
+
+export function timeDuration(time: number, format = 'DD[d] HH[h] mm[m]') {
+  return dayjs.duration(time)?.format(format);
+}
+
+export function formatTimeStr(val: number | string, timeOutStr = 'unLocked') {
+  if (!val) return '--';
+  const timestamp = dayjs(val);
+  const current = dayjs();
+  const remainingTime = timestamp.diff(current);
+
+  if (remainingTime < 0) return timeOutStr;
+  if (remainingTime < ONE_MINUTE_IN_MS) return '< 1m';
+  if (remainingTime < ONE_HOUR_IN_MS) return timeDuration(remainingTime, 'mm[m]');
+  if (remainingTime < ONE_DAY_IN_MS) return timeDuration(remainingTime, 'HH[h] mm[m]');
+  return timeDuration(remainingTime);
+}
