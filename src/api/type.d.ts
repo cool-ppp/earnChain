@@ -10,7 +10,7 @@ interface ITokenParams {
   source: string;
 }
 
-interface IStackPoolData {
+interface IStakePoolData {
   poolName?: string;
   poolId?: string;
   stakeId?: string;
@@ -29,7 +29,7 @@ interface IStackPoolData {
   stakeApr?: string;
 }
 
-type TStackPoolDataKey = keyof IStackPoolData;
+type TStackPoolDataKey = keyof IStakePoolData;
 interface IStakingItem {
   dappName: string;
   icon: string;

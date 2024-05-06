@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-export async function fetchStackingPoolsData(): Promise<IStackPoolData> {
+export async function fetchStackingPoolsData(): Promise<IStakePoolData> {
   return Promise.resolve({
     poolName: 'SGR',
     poolId: '1',
@@ -14,9 +14,10 @@ export async function fetchStackingPoolsData(): Promise<IStackPoolData> {
     stakeSymbol: 'SGR',
     earned: '1111.2345',
     earnedInUsd: '23.555',
-    staked: '234444.5555',
+    staked: '123435.6778',
     stakedInUsD: '234.66',
-    unlockTime: dayjs().add(20, 's').valueOf(),
+    unlockTime: dayjs().add(20, 'm').valueOf(),
     stakeApr: '33.45',
+    stakeAprX: 1.24,
   });
 }

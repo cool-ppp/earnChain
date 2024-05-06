@@ -14,17 +14,26 @@ import styles from './style.module.css';
 import dayjs from 'dayjs';
 
 interface IStackCardProps {
-  data: IStackPoolData;
+  data: IStakePoolData;
   isLogin: boolean;
   onClaim?: () => void;
-  onWithdraw?: () => void;
   onAdd?: () => void;
   onUnstack?: () => void;
+  onExtend?: () => void;
   onStack?: () => void;
-  onUpdate?: () => void;
+  onUpdateAprAndRewards?: () => void;
 }
 
-export default function StackCard({ data, isLogin, onStack }: IStackCardProps) {
+export default function StackCard({
+  data,
+  isLogin,
+  onStack,
+  onAdd,
+  onClaim,
+  onExtend,
+  onUnstack,
+  onUpdateAprAndRewards,
+}: IStackCardProps) {
   const {
     poolId,
     poolName,
@@ -43,7 +52,7 @@ export default function StackCard({ data, isLogin, onStack }: IStackCardProps) {
     stakeApr,
   } = data;
 
-  const showStackInfo = useMemo(() => !!data?.earned, [data?.earned]);
+  const showStackInfo = useMemo(() => !!data?.staked, [data?.staked]);
 
   const aprRange = useMemo(() => {
     if (!aprMin || !aprMax) return '--';
@@ -59,7 +68,12 @@ export default function StackCard({ data, isLogin, onStack }: IStackCardProps) {
     [data?.unlockTime],
   );
   const unStackTip = useMemo(
-    () => (!isUnstacked ? 'The number of rewards included' : ''),
+    () => (!isUnstacked ? 'Unlocking is not available during the staking lockup period.' : ''),
+    [isUnstacked],
+  );
+
+  const stakingExpiredTip = useMemo(
+    () => (isUnstacked ? 'Staking has expired, please unlock first.' : ''),
     [isUnstacked],
   );
 
@@ -111,7 +125,14 @@ export default function StackCard({ data, isLogin, onStack }: IStackCardProps) {
               </div>
             </div>
             <ToolTip title={claimTip}>
-              <Button className="w-[112px]" type="primary" ghost size="medium" disabled={!canClaim}>
+              <Button
+                className="w-[112px]"
+                type="primary"
+                ghost
+                size="medium"
+                disabled={!canClaim}
+                onClick={onClaim}
+              >
                 Claim
               </Button>
             </ToolTip>
@@ -130,11 +151,24 @@ export default function StackCard({ data, isLogin, onStack }: IStackCardProps) {
               </div>
             </div>
             <div className="flex gap-4">
-              <Button className="w-[112px]" type="primary" size="medium">
-                Add Stack
-              </Button>
+              <ToolTip title={stakingExpiredTip}>
+                <Button
+                  className="w-[112px]"
+                  type="primary"
+                  size="medium"
+                  onClick={onAdd}
+                  disabled={isUnstacked}
+                >
+                  Add Stack
+                </Button>
+              </ToolTip>
               <ToolTip title={unStackTip}>
-                <Button className="w-[112px]" size="medium" disabled={!isUnstacked}>
+                <Button
+                  className="w-[112px]"
+                  size="medium"
+                  disabled={!isUnstacked}
+                  onClick={onUnstack}
+                >
                   Unstack
                 </Button>
               </ToolTip>
@@ -153,9 +187,17 @@ export default function StackCard({ data, isLogin, onStack }: IStackCardProps) {
                 unlocked by {dayjs(unlockTime).format('YYYY-MM-DD HH:mm:ss')}
               </div>
             </div>
-            <Button className="w-[138px]" type="primary" size="medium" disabled={isUnstacked}>
-              Extended lock
-            </Button>
+            <ToolTip title={stakingExpiredTip}>
+              <Button
+                className="w-[138px]"
+                type="primary"
+                size="medium"
+                disabled={isUnstacked}
+                onClick={onExtend}
+              >
+                Extended lock
+              </Button>
+            </ToolTip>
           </div>
         </div>
       )}

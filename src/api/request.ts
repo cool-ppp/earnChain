@@ -11,9 +11,9 @@ export const fetchToken = async (data: ITokenParams) => {
   >('/token', qs.stringify(data) as any);
 };
 
-export const fetchStackingPoolsData = async (): Promise<IStackPoolData> => {
+export const fetchStackingPoolsData = async (): Promise<IStakePoolData> => {
   return request.post('/api/app/simple/staking/pools');
-}
+};
 
 export const getStakingItems = async (): Promise<Array<IStakingItem>> => {
   return request.get('/app/points/staking/items');

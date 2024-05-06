@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useState } from 'react';
+import { useMemo, useCallback, useState, useEffect } from 'react';
 import NiceModal, { useModal } from '@ebay/nice-modal-react';
 import CommonModal from 'components/CommonModal';
 import { Button, Typography, FontWeightEnum } from 'aelf-design';
@@ -10,87 +10,194 @@ import { ZERO } from 'constants/index';
 import { RightOutlined } from '@ant-design/icons';
 import style from './style.module.css';
 import dayjs from 'dayjs';
-import { TStackType } from 'types/stack';
+import { StakeType } from 'types/stack';
+import { formatNumberWithDecimal } from 'utils/format';
+import { DEFAULT_DATE_FORMAT } from 'constants/index';
+import clsx from 'clsx';
 
 const FormItem = Form.Item;
 const { Title, Text } = Typography;
 
 interface IStackModalProps {
-  type?: TStackType;
-  extend?: boolean;
+  type?: StakeType;
   balance?: string;
-  max?: string;
-  min?: string;
-  tokenName: string;
-  onConfirm?: () => void;
+  min?: string; // min balance
+  stakeData: IStakePoolData;
+  onConfirm?: (amount: string, period: string) => void;
   onClose?: () => void;
 }
 
 function StackModal({
-  type = 'stack',
-  extend = false,
+  type = StakeType.STAKE,
   balance,
-  max,
   min,
-  tokenName,
+  stakeData,
   onClose,
   onConfirm,
 }: IStackModalProps) {
+  const { stakeSymbol, staked, unlockTime, stakeApr } = stakeData;
   const modal = useModal();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [amount, setAmount] = useState<string>('0');
-  const [days, setDays] = useState('0');
-  const [isExtend, setIsExtend] = useState(extend);
+  const [btnDisabled, setBtnDisabled] = useState(true);
+  const [amount, setAmount] = useState<string>('');
+  const [period, setPeriod] = useState('');
+  const [isExtend, setIsExtend] = useState(type === StakeType.EXTEND);
+  const [apr, setApr] = useState<string>('');
 
-  const title = useMemo(() => `Stack ${tokenName}`, [tokenName]);
-  // const stackAmountStr = useMemo(() => `${amount}`, [amount]);
-  const durationStr = useMemo(() => `${days} Days`, [days]);
-  const releaseDate = useMemo(
-    () => (+days ? dayjs().add(+days, 'day').format('YYYY-MM-DD HH:mm') : '--'),
-    [days],
+  const typeIsExtend = useMemo(() => type === StakeType.EXTEND, [type]);
+  const typeIsStake = useMemo(() => type === StakeType.STAKE, [type]);
+  const typeIsAdd = useMemo(() => type === StakeType.ADD, [type]);
+
+  const title = useMemo(() => {
+    switch (type) {
+      case StakeType.STAKE:
+        return `Stake ${stakeSymbol}`;
+      case StakeType.ADD:
+        return `Add Stake ${stakeSymbol}`;
+      case StakeType.EXTEND:
+        return 'Extend lock duration';
+      default:
+        return '';
+    }
+  }, [stakeSymbol, type]);
+
+  const amountStr = useMemo(() => {
+    let _amount;
+    const amountStr = amount.replace(',', '');
+    if (typeIsStake) {
+      _amount = amountStr;
+    } else if (typeIsAdd) {
+      _amount = ZERO.plus(staked ?? '').plus(amountStr);
+      _amount.isNaN() && (_amount = '');
+    } else {
+      _amount = staked ?? '';
+    }
+    console.log('_amount', _amount);
+    return formatNumberWithDecimal(_amount) || '--';
+  }, [amount, staked, typeIsAdd, typeIsStake]);
+
+  const originAmountStr = useMemo(
+    () => (typeIsAdd ? formatNumberWithDecimal(staked ?? '') : ''),
+    [staked, typeIsAdd],
   );
 
-  const stackLable = useMemo(() => {
+  const remainingTime = useMemo(() => {
+    if (!unlockTime) return '--';
+    const current = dayjs();
+    const targetTime = dayjs(unlockTime);
+    const durationTime = dayjs.duration(targetTime.diff(current));
+    const days = durationTime.asDays();
+    // const hours = durationTime.asHours();
+    // const hoursToDay = ZERO.plus(hours).div(24);
+    console.log('remainingTime', days);
+    return ZERO.plus(days).toFixed(1);
+  }, [unlockTime]);
+
+  const originPeriodStr = useMemo(
+    () => (isExtend ? `${remainingTime} Days` : ''),
+    [isExtend, remainingTime],
+  );
+  const periodStr = useMemo(() => {
+    if (typeIsAdd && !isExtend) return `${remainingTime} Days`;
+    if (!period) return '--';
+    if (isExtend) {
+      return remainingTime === '--'
+        ? remainingTime
+        : `${ZERO.plus(remainingTime).plus(period).toFixed()} Days`;
+    }
+    return `${period} Days`;
+  }, [isExtend, period, remainingTime, typeIsAdd]);
+
+  const originAPRStr = useMemo(
+    () => (!typeIsStake ? `${stakeApr}%(3.00x)` : ''),
+    [stakeApr, typeIsStake],
+  );
+
+  const getAPR = useCallback(async () => {
+    // if (typeIsStake) return setApr(stakeApr ?? '--');
+    const res = await Promise.resolve('1.44');
+    setApr(res);
+  }, []);
+
+  // useEffect(() => {
+  //   getAPR();
+  // }, [getAPR, amount, period]);
+
+  const aprStr = useMemo(() => (apr ? `${apr}%(1.22x)` : '--'), [apr]);
+
+  const originReleaseDateStr = useMemo(() => {
+    if (!unlockTime) return '--';
+    return dayjs(unlockTime).format(DEFAULT_DATE_FORMAT);
+  }, [unlockTime]);
+
+  const releaseDateStr = useMemo(() => {
+    if (typeIsAdd && !isExtend) return originReleaseDateStr;
+    if (!period) return '--';
+    if (isExtend && unlockTime) {
+      return dayjs(unlockTime).add(+period, 'day').format(DEFAULT_DATE_FORMAT);
+    }
+    if (typeIsStake) {
+      return dayjs().add(+period, 'day').format(DEFAULT_DATE_FORMAT);
+    }
+
+    return '--';
+  }, [isExtend, originReleaseDateStr, period, typeIsAdd, typeIsStake, unlockTime]);
+
+  const stakeLabel = useMemo(() => {
+    const _balance = typeIsExtend ? staked : balance;
     return (
       <div className="flex justify-between text-base w-full">
         <span>Stack amount</span>
-        <span className="text-neutralTertiary">
-          Balance: {ZERO.plus(balance || '0').toFormat(2)}
+        <span className={clsx('text-neutralTertiary', typeIsExtend && 'text-neutralTitle mb-6')}>
+          {!typeIsExtend ? 'May pledge: ' : ''}
+          {formatNumberWithDecimal(_balance || '0')}
         </span>
       </div>
     );
-  }, [balance]);
+  }, [balance, staked, typeIsExtend]);
+
+  const onExtendChange = useCallback(() => {
+    setIsExtend(!isExtend);
+    setPeriod('');
+    form.resetFields(['period']);
+  }, [form, isExtend]);
 
   const durationLabel = useMemo(() => {
     return (
       <>
-        {type === 'add' ? (
+        {type === StakeType.ADD ? (
           <div className="flex items-center">
-            <Checkbox checked={isExtend} onChange={() => setIsExtend(!isExtend)} />
+            <Checkbox checked={isExtend} onChange={onExtendChange} />
             <span className="text-base ml-2">Extend Lock Duration</span>
           </div>
         ) : (
-          'Lock Duration'
+          'Lock duration'
         )}
       </>
     );
-  }, [isExtend, type]);
+  }, [isExtend, onExtendChange, type]);
 
-  const disabledDurationInput = useMemo(() => type === 'add' && !isExtend, [isExtend, type]);
+  const disabledDurationInput = useMemo(() => typeIsAdd && !isExtend, [isExtend, typeIsAdd]);
 
   const onStack = useCallback(async () => {
     form.submit();
-    onConfirm?.();
-  }, [form, onConfirm]);
+    onConfirm?.(amount, period);
+  }, [amount, period, form, onConfirm]);
 
   const footer = useMemo(() => {
     return (
-      <Button className="round-lg w-[260px]" type="primary" loading={loading} onClick={onStack}>
-        Stack
+      <Button
+        className="round-lg w-[260px]"
+        disabled={btnDisabled}
+        type="primary"
+        loading={loading}
+        onClick={onStack}
+      >
+        {type === StakeType.EXTEND ? 'Add Stack' : 'Stake'}
       </Button>
     );
-  }, [loading, onStack]);
+  }, [btnDisabled, loading, onStack, type]);
 
   const onCancel = useCallback(() => {
     if (onClose) return onClose();
@@ -100,28 +207,32 @@ function StackModal({
   const getMaxAmount = useCallback(() => {
     console.log('suffixClick');
     if (ZERO.plus(balance || '0').eq('0')) return;
-    if (max) setAmount(max);
-  }, [balance, max]);
+    // if (max) setAmount(max);
+  }, [balance]);
 
   const validateAmount = useCallback(
     (rule: any, val: string) => {
       console.log('validateAmount', val);
       if (!val) return Promise.reject('please enter number');
       const _val = val.replace(',', '');
-      if (ZERO.plus(balance || 0).lt(_val))
-        return Promise.reject(`insufficient ${tokenName} balance`);
+      if (
+        (typeIsAdd && ZERO.plus(balance || 0).lt(ZERO.plus(staked ?? '').plus(_val))) ||
+        ZERO.plus(balance || 0).lt(_val)
+      ) {
+        return Promise.reject(`insufficient ${stakeSymbol} balance`);
+      }
       if (ZERO.plus(_val).lt(min || 0)) return Promise.reject('min xxx');
       return Promise.resolve();
     },
-    [balance, min, tokenName],
+    [balance, min, stakeSymbol, staked, typeIsAdd],
   );
 
   const onValueChange = useCallback(
     (current: any, allVal: any) => {
       console.log('onValueChange', current, allVal);
-      const { duration, amount } = allVal;
-      form.setFieldsValue({ duration });
-      setDays(duration);
+      const { period, amount } = allVal;
+      form.setFieldsValue({ period });
+      setPeriod(period);
       setAmount(amount);
     },
     [form],
@@ -130,22 +241,29 @@ function StackModal({
   const onSelectDays = useCallback(
     (val: string) => {
       if (disabledDurationInput) return;
-      form.setFieldValue('duration', val);
-      form.validateFields(['duration']);
-      setDays(val);
+      form.setFieldValue('period', val);
+      form.validateFields(['period']);
+      setPeriod(val);
     },
     [disabledDurationInput, form],
   );
 
-  const validateDays = useCallback((rule: any, val: string) => {
-    console.log('rule', rule);
-    console.log('value', val);
+  const validateDays = useCallback(
+    (rule: any, val: string) => {
+      console.log('rule', rule);
+      console.log('value', val);
 
-    const _val = +(val || 0);
-    if (_val < 7) return Promise.reject('min 7 days');
-    if (_val > 360) return Promise.reject('max 360 days');
-    return Promise.resolve();
-  }, []);
+      const _val = +(val || 0);
+      if (!typeIsStake) {
+        const maxDuration = ZERO.plus(360).minus(remainingTime).toFixed(0);
+        if (ZERO.plus(_val).gt(maxDuration)) return Promise.reject(`max ${maxDuration} Days`);
+      }
+      if (_val < 7) return Promise.reject('min 7 days');
+      if (_val > 360) return Promise.reject('max 360 days');
+      return Promise.resolve();
+    },
+    [remainingTime, typeIsStake],
+  );
 
   const onFinish = useCallback(
     (values: any) => {
@@ -176,27 +294,33 @@ function StackModal({
         layout="vertical"
         onFinish={onFinish}
       >
-        <FormItem
-          label={stackLable}
-          labelCol={{ span: 24 }}
-          name="amount"
-          rules={[{ validator: validateAmount }]}
-          className="mb-[22px]"
-        >
-          <InputNumberBase
-            decimal={2}
-            placeholder="Enter the amount"
-            suffixText="Max"
-            suffixClick={getMaxAmount}
-            allowClear
-          />
-        </FormItem>
-        <div className="flex justify-end items-center cursor-pointer" onClick={jumpUrl}>
-          <span className="text-brandDefault hover:text-brandHover text-xs">Gain SGR</span>
-          <RightOutlined className={'w-4 h-4 text-brandDefault ml-1'} width={20} height={20} />
-        </div>
+        {typeIsExtend ? (
+          <>{stakeLabel}</>
+        ) : (
+          <FormItem
+            label={stakeLabel}
+            labelCol={{ span: 24 }}
+            name="amount"
+            rules={[{ validator: validateAmount }]}
+            className="mb-[22px]"
+          >
+            <InputNumberBase
+              decimal={2}
+              placeholder="Enter the amount"
+              suffixText="Max"
+              suffixClick={getMaxAmount}
+              allowClear
+            />
+          </FormItem>
+        )}
+        {!typeIsExtend && (
+          <div className="flex justify-end items-center cursor-pointer" onClick={jumpUrl}>
+            <span className="text-brandDefault hover:text-brandHover text-xs">Gain SGR</span>
+            <RightOutlined className={'w-4 h-4 text-brandDefault ml-1'} width={20} height={20} />
+          </div>
+        )}
         <FormItem label={durationLabel}>
-          <FormItem name="duration" rules={[{ validator: validateDays }]}>
+          <FormItem name="period" rules={[{ validator: validateDays }]}>
             <InputNumberBase
               placeholder="please enter the days"
               suffixText="Days"
@@ -204,30 +328,22 @@ function StackModal({
               disabled={disabledDurationInput}
             />
           </FormItem>
-          <DaysSelect current={days} onSelect={onSelectDays} disabled={disabledDurationInput} />
+          <DaysSelect current={period} onSelect={onSelectDays} disabled={disabledDurationInput} />
         </FormItem>
-        {/* {type === 'add' && (
-          <FormItem label="Fixed View">
-            <div className="flex gap-4 justify-between border border-solid border-neutralDivider rounded-lg px-6 py-6">
-              <div className="flex flex-col justify-between flex-1 text-base gap-2">
-                <div className="text-neutralTertiary">Stack Amount</div>
-                <div className="text-neutralPrimary font-medium">{amount}</div>
-              </div>
-              <Divider type="vertical" className="h-[inherit]" />
-              <div className="flex flex-col justify-between flex-1 text-base gap-2">
-                <div className="text-neutralTertiary">Locked Duration</div>
-                <div className="text-neutralPrimary font-medium">{durationStr}</div>
-              </div>
-            </div>
-          </FormItem>
-        )} */}
-
-        <div className="flex flex-col gap-4 py-6 px-6 bg-neutralHoverBg rounded-lg">
-          <ViewItem label="Stack amount" text={amount} />
-          <ViewItem label="Lock duration" text={durationStr} />
-          <ViewItem label="APR" text="1222" />
-          <ViewItem label="Release date" text={releaseDate} />
-        </div>
+        <FormItem label="Periodic pledge preview">
+          <div className="flex flex-col gap-4 py-6 px-6 bg-neutralHoverBg rounded-lg">
+            <ViewItem label="Stack amount" text={amountStr} originText={originAmountStr} />
+            <ViewItem label="Lock duration" text={periodStr} originText={originPeriodStr} />
+            <ViewItem label="APR" text={aprStr} originText={originAPRStr} />
+            {isExtend && (
+              <ViewItem label="Original release date" text={originReleaseDateStr}></ViewItem>
+            )}
+            <ViewItem
+              label={isExtend ? 'New release date' : 'Release date'}
+              text={releaseDateStr}
+            />
+          </div>
+        </FormItem>
         <div>
           <Divider />
         </div>

@@ -6,6 +6,9 @@ import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
 
+window.dayjs = dayjs;
+window.zero = ZERO;
+
 export function formatTime({
   minDigits = 2,
   showSecond = true,
@@ -115,7 +118,7 @@ export const isPotentialNumber = (str: string) => {
 export function formatNumberWithDecimal(val: number | string | BigNumber, decimal = 2) {
   const _val = ZERO.plus(val);
   if (_val.isNaN()) return '';
-  return _val.toFormat(decimal);
+  return ZERO.plus(_val.toFixed(decimal)).toFormat();
 }
 
 export function formatTokenAmount(val: string | number, min = DEFAULT_MIN_AMOUNT) {

@@ -92,3 +92,35 @@ const tokenStakingContractRequest = async <T, R>(
     return Promise.reject(formatErrorMsg(resError, method));
   }
 };
+
+export const tokenStake = async (
+  params: {
+    poolId: string;
+    amount: string;
+    period: string;
+  },
+  options?: IContractOptions,
+): Promise<ISendResult> => await tokenStakingContractRequest('Stake', params, options);
+
+export const manageStakeInfo = async (
+  params: {
+    stakeId: string;
+    amount: string;
+    period: string;
+  },
+  options?: IContractOptions,
+): Promise<ISendResult> => await tokenStakingContractRequest('ManageStakeInfo', params, options);
+
+export const tokenClaim = async (
+  params: {
+    stakeId: string;
+  },
+  options?: IContractOptions,
+): Promise<ISendResult> => tokenStakingContractRequest('Claim', params, options);
+
+export const tokenWithdrawn = async (
+  params: {
+    stakeId: string;
+  },
+  options?: IContractOptions,
+): Promise<ISendResult> => tokenStakingContractRequest('Withdraw', params, options);
