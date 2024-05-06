@@ -9,8 +9,10 @@ import { useCheckLoginAndToken } from 'hooks/useWallet';
 import { formatTokenPrice } from 'utils/format';
 import useResponsive from 'utils/useResponsive';
 import { useModal } from '@ebay/nice-modal-react';
-import ConfirmModal from '../../../../components/ConfirmModal';
-import { showTradeResTip } from 'utils/notification';
+import ConfirmModal, {
+  ConfirmModalTypeEnum,
+  IConfirmModalProps,
+} from '../../../../components/ConfirmModal';
 import usePointsPoolService, {
   ListTypeEnum,
 } from 'pageComponents/stake/hooks/usePointsPoolService';
@@ -20,20 +22,8 @@ export function PointsStakeItem({ item }: { item: IPointsPoolItem }) {
   const confirmModal = useModal(ConfirmModal);
 
   const handleClaim = useCallback(() => {
-    confirmModal.show({
-      title: 'lingqujiangli',
-      content: `You will claim ${item.earned} SGR`,
-      subContent: 'blalalallaalallalallalalblalalallaalallalallalal',
-      confirmBtnText: 'Confirm Claim',
-      onConfirm: () => {
-        showTradeResTip({
-          status: 'error',
-          message: 'errorerrorerrorerror',
-        });
-      },
-      loading: false,
-    });
-  }, [confirmModal, item.earned]);
+    console.log('handleClaim');
+  }, []);
 
   const dailyRewards = useMemo(() => {
     return formatTokenPrice(item.dailyRewards, { decimalPlaces: 2 });

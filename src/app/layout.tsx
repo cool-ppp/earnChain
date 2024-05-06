@@ -11,8 +11,8 @@ import 'styles/theme.css';
 import Provider from 'provider';
 
 export const metadata = {
-  title: 'earnChain',
-  description: 'earnChain',
+  title: 'ecoearn',
+  description: 'ecoearn',
 };
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
