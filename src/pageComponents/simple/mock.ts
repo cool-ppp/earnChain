@@ -14,7 +14,7 @@ export async function fetchStackingPoolsData(): Promise<IStakePoolData> {
     stakeSymbol: 'SGR',
     earned: '1111.2345',
     earnedInUsd: '23.555',
-    staked: '123435.6778',
+    staked: '100',
     stakedInUsD: '234.66',
     unlockTime: dayjs().add(20, 'm').valueOf(),
     stakeApr: '33.45',

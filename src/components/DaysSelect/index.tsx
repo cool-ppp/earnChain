@@ -1,4 +1,4 @@
-import { DAYS_DURATION } from 'constants/stack';
+import { DAYS_DURATION } from 'constants/stake';
 import clsx from 'clsx';
 import { Form } from 'antd';
 

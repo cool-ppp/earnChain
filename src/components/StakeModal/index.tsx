@@ -7,13 +7,14 @@ import DaysSelect from 'components/DaysSelect';
 import ViewItem from 'components/ViewItem';
 import { Form, Divider, Checkbox } from 'antd';
 import { ZERO, DEFAULT_DATE_FORMAT } from 'constants/index';
-import { MIN_STAKE_AMOUNT } from 'constants/stack';
+import { MIN_STAKE_AMOUNT, MIN_STAKE_PERIOD, MAX_STAKE_PERIOD } from 'constants/stake';
 import { RightOutlined } from '@ant-design/icons';
 import style from './style.module.css';
 import dayjs from 'dayjs';
 import { StakeType } from 'types/stack';
 import { formatNumberWithDecimal } from 'utils/format';
 import clsx from 'clsx';
+import { singleMessage } from '@portkey/did-ui-react';
 
 const FormItem = Form.Item;
 const { Title, Text } = Typography;
@@ -39,15 +40,19 @@ function StackModal({
   const modal = useModal();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [btnDisabled, setBtnDisabled] = useState(true);
   const [amount, setAmount] = useState<string>('');
   const [period, setPeriod] = useState('');
-  const [isExtend, setIsExtend] = useState(type === StakeType.EXTEND);
   const [apr, setApr] = useState<string>('');
 
   const typeIsExtend = useMemo(() => type === StakeType.EXTEND, [type]);
   const typeIsStake = useMemo(() => type === StakeType.STAKE, [type]);
   const typeIsAdd = useMemo(() => type === StakeType.ADD, [type]);
+
+  const [isExtend, setIsExtend] = useState(typeIsExtend);
+  const [amountValid, setAmountValid] = useState(typeIsExtend);
+  const [periodValid, setPeriodValid] = useState(typeIsAdd);
+
+  const btnDisabled = useMemo(() => !amountValid || !periodValid, [amountValid, periodValid]);
 
   const title = useMemo(() => {
     switch (type) {
@@ -83,34 +88,36 @@ function StackModal({
   );
 
   const remainingTime = useMemo(() => {
-    if (!unlockTime) return '--';
+    if (!unlockTime) return '';
     const current = dayjs();
     const targetTime = dayjs(unlockTime);
     const durationTime = dayjs.duration(targetTime.diff(current));
     const days = durationTime.asDays();
     // const hours = durationTime.asHours();
     // const hoursToDay = ZERO.plus(hours).div(24);
-    console.log('remainingTime', days);
-    return ZERO.plus(days).toFixed(1);
+    console.log('remainingTime', days, ZERO.plus(days).toFixed());
+    return ZERO.plus(days).toFixed();
   }, [unlockTime]);
 
-  const remainingTimeFormatStr = useMemo(
-    () => (remainingTime !== '--' && ZERO.plus(remainingTime).lt(0.1) ? '< 0.1' : remainingTime),
-    [remainingTime],
-  );
+  const remainingTimeFormatStr = useMemo(() => {
+    if (!remainingTime) return '--';
+    if (ZERO.plus(remainingTime).lt(0.1)) return '< 0.1 Days';
+
+    return ZERO.plus(remainingTime).toFixed(1) + 'Days';
+  }, [remainingTime]);
 
   const originPeriodStr = useMemo(
-    () => (isExtend ? `${remainingTimeFormatStr} Days` : ''),
+    () => (isExtend ? remainingTimeFormatStr : ''),
     [isExtend, remainingTimeFormatStr],
   );
 
   const periodStr = useMemo(() => {
-    if (typeIsAdd && !isExtend) return remainingTimeFormatStr + ' Days';
+    if (typeIsAdd && !isExtend) return remainingTimeFormatStr;
     if (!period) return '--';
     if (isExtend) {
-      return remainingTime === '--'
-        ? remainingTime
-        : `${ZERO.plus(remainingTime).plus(period).toFixed()} Days`;
+      return remainingTime
+        ? `${formatNumberWithDecimal(ZERO.plus(remainingTime).plus(period), 1)} Days`
+        : '--';
     }
     return `${period} Days`;
   }, [isExtend, period, remainingTime, remainingTimeFormatStr, typeIsAdd]);
@@ -150,6 +157,13 @@ function StackModal({
     return '--';
   }, [isExtend, originReleaseDateStr, period, typeIsAdd, typeIsStake, unlockTime]);
 
+  const maxDuration = useMemo(() => {
+    if (typeIsStake) return MAX_STAKE_PERIOD;
+    return ZERO.plus(MAX_STAKE_PERIOD).minus(remainingTime).toFixed(0);
+  }, [remainingTime, typeIsStake]);
+
+  const minDuration = useMemo(() => (typeIsStake ? MIN_STAKE_PERIOD : 0), [typeIsStake]);
+
   const stakeLabel = useMemo(() => {
     const _balance = typeIsExtend ? staked : balance;
     return (
@@ -166,6 +180,7 @@ function StackModal({
   const onExtendChange = useCallback(() => {
     setIsExtend(!isExtend);
     setPeriod('');
+    setPeriodValid(isExtend);
     form.resetFields(['period']);
   }, [form, isExtend]);
 
@@ -186,10 +201,7 @@ function StackModal({
 
   const disabledDurationInput = useMemo(() => typeIsAdd && !isExtend, [isExtend, typeIsAdd]);
 
-  const onStack = useCallback(async () => {
-    form.submit();
-    onConfirm?.(amount, period);
-  }, [amount, period, form, onConfirm]);
+  const onStack = useCallback(async () => form.submit(), [form]);
 
   const footer = useMemo(() => {
     return (
@@ -211,14 +223,29 @@ function StackModal({
   }, [modal, onClose]);
 
   const getMaxAmount = useCallback(() => {
-    console.log('suffixClick');
+    console.log('getMaxAmount');
+    let max = '';
+
     if (ZERO.plus(balance || '0').eq('0')) return;
-    // if (max) setAmount(max);
-  }, [balance]);
+
+    if (typeIsAdd && balance && staked) {
+      max = ZERO.plus(balance).minus(staked).toFixed();
+    }
+
+    if (typeIsStake && balance) {
+      max = ZERO.plus(balance).toFixed();
+    }
+
+    if (!max) return;
+    const maxStr = formatNumberWithDecimal(max);
+    form.setFieldValue('amount', maxStr);
+    setAmount(maxStr);
+  }, [balance, form, staked, typeIsAdd, typeIsStake]);
 
   const validateAmount = useCallback(
     (rule: any, val: string) => {
       console.log('validateAmount', val);
+      setAmountValid(false);
       if (!val) return Promise.reject('please enter number');
       const _val = val.replace(',', '');
       if (
@@ -227,7 +254,8 @@ function StackModal({
       ) {
         return Promise.reject(`insufficient ${stakeSymbol} balance`);
       }
-      if (ZERO.plus(_val).lt(min)) return Promise.reject('min xxx');
+      if (ZERO.plus(_val).lt(min)) return Promise.reject(`min ${min} ${stakeSymbol}`);
+      setAmountValid(true);
       return Promise.resolve();
     },
     [balance, min, stakeSymbol, staked, typeIsAdd],
@@ -236,7 +264,7 @@ function StackModal({
   const onValueChange = useCallback(
     (current: any, allVal: any) => {
       console.log('onValueChange', current, allVal);
-      const { period, amount } = allVal;
+      const { period, amount = '' } = allVal;
       form.setFieldsValue({ period });
       setPeriod(period);
       setAmount(amount);
@@ -247,36 +275,35 @@ function StackModal({
   const onSelectDays = useCallback(
     (val: string) => {
       if (disabledDurationInput) return;
+      if (ZERO.plus(val).gt(maxDuration)) return singleMessage.warning(`max ${maxDuration} Days`);
       form.setFieldValue('period', val);
       form.validateFields(['period']);
       setPeriod(val);
     },
-    [disabledDurationInput, form],
+    [disabledDurationInput, form, maxDuration],
   );
 
   const validateDays = useCallback(
     (rule: any, val: string) => {
-      console.log('rule', rule);
-      console.log('value', val);
-
-      const _val = +(val || 0);
-      if (!typeIsStake) {
-        const maxDuration = ZERO.plus(360).minus(remainingTime).toFixed(0);
-        if (ZERO.plus(_val).gt(maxDuration)) return Promise.reject(`max ${maxDuration} Days`);
-      }
-      if (_val < 7) return Promise.reject('min 7 days');
-      if (_val > 360) return Promise.reject('max 360 days');
+      console.log('validateDays', val);
+      setPeriodValid(false);
+      if (!val) return Promise.reject(`please enter duration`);
+      const _val = val.replace(',', '');
+      if (ZERO.plus(_val).gt(maxDuration)) return Promise.reject(`max ${maxDuration} Days`);
+      if (ZERO.plus(_val).lt(minDuration)) return Promise.reject(`min ${minDuration} days`);
+      setPeriodValid(true);
       return Promise.resolve();
     },
-    [remainingTime, typeIsStake],
+    [maxDuration, minDuration],
   );
 
   const onFinish = useCallback(
     (values: any) => {
-      form.setFieldValue('amount', '222');
       console.log('finish', values);
+      const _amount = typeIsExtend ? staked ?? '' : amount;
+      onConfirm?.(_amount.replace(',', ''), period);
     },
-    [form],
+    [amount, onConfirm, period, staked, typeIsExtend],
   );
 
   const jumpUrl = useCallback(() => {
@@ -298,6 +325,7 @@ function StackModal({
         onValuesChange={onValueChange}
         form={form}
         layout="vertical"
+        validateTrigger="onBlur"
         onFinish={onFinish}
       >
         {typeIsExtend ? (
@@ -320,9 +348,11 @@ function StackModal({
           </FormItem>
         )}
         {!typeIsExtend && (
-          <div className="flex justify-end items-center cursor-pointer" onClick={jumpUrl}>
-            <span className="text-brandDefault hover:text-brandHover text-xs">Gain SGR</span>
-            <RightOutlined className={'w-4 h-4 text-brandDefault ml-1'} width={20} height={20} />
+          <div className="flex justify-end items-center cursor-pointer">
+            <div onClick={jumpUrl}>
+              <span className="text-brandDefault hover:text-brandHover text-xs">Gain SGR</span>
+              <RightOutlined className={'w-4 h-4 text-brandDefault ml-1'} width={20} height={20} />
+            </div>
           </div>
         )}
         <FormItem label={durationLabel}>

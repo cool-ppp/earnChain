@@ -12,9 +12,11 @@ export default function useStack() {
       stackModal.show({
         stakeData,
         type: StakeType.STAKE,
+        balance: '10000',
         onConfirm: async (amount: string, period: string) => {
           try {
-            await tokenStake({ poolId: stakeData.poolId || '', amount, period });
+            console.log('stake amount period', amount, period);
+            // await tokenStake({ poolId: stakeData.poolId || '', amount, period });
           } catch (error) {
             console.log(error);
           }
@@ -29,9 +31,11 @@ export default function useStack() {
       stackModal.show({
         stakeData,
         type: StakeType.ADD,
+        balance: '10000',
         onConfirm: async (amount: string, period: string) => {
           try {
-            await manageStakeInfo({ stakeId: stakeData.stakeId || '', amount, period });
+            console.log('stake amount period', amount, period);
+            // await manageStakeInfo({ stakeId: stakeData.stakeId || '', amount, period });
           } catch (error) {
             console.log(error);
           }
@@ -46,9 +50,11 @@ export default function useStack() {
       stackModal.show({
         stakeData,
         type: StakeType.EXTEND,
+        balance: '10000',
         onConfirm: async (amount: string, period: string) => {
           try {
-            await manageStakeInfo({ stakeId: stakeData.stakeId || '', amount, period });
+            console.log('stake amount period', amount, period);
+            // await manageStakeInfo({ stakeId: stakeData.stakeId || '', amount, period });
           } catch (error) {
             console.log(error);
           }

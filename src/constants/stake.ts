@@ -9,3 +9,7 @@ export const ONE_HOUR_IN_MS = 60 * ONE_MINUTE_IN_MS;
 export const ONE_DAY_IN_MS = 24 * ONE_HOUR_IN_MS;
 
 export const MIN_STAKE_AMOUNT = 10;
+
+export const MAX_STAKE_PERIOD = 360;
+
+export const MIN_STAKE_PERIOD = 7;

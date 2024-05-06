@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 import { ZERO } from 'constants/index';
-import { DEFAULT_MIN_AMOUNT } from 'constants/stack';
-import { ONE_DAY_IN_MS, ONE_HOUR_IN_MS, ONE_MINUTE_IN_MS } from 'constants/stack';
+import { DEFAULT_MIN_AMOUNT } from 'constants/stake';
+import { ONE_DAY_IN_MS, ONE_HOUR_IN_MS, ONE_MINUTE_IN_MS } from 'constants/stake';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);

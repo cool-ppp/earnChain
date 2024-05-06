@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import StackCard from 'components/StakeCard';
 import useGetLoginStatus from 'redux/hooks/useGetLoginStatus';
 import { useCheckLoginAndToken } from 'hooks/useWallet';
-import useStack from 'hooks/useStack';
+import useStack from 'hooks/useStake';
 import { fetchStackingPoolsData } from './mock';
 import { tokenClaim, tokenWithdrawn, tokenStake, manageStakeInfo } from 'contract/tokenStaking';
 import { singleMessage } from '@portkey/did-ui-react';
