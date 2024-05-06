@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { Button, ToolTip } from 'aelf-design';
 import { Divider } from 'antd';
-import Description from '../Description';
-import StackToken from 'components/StackToken';
+import Description from 'components/StakeCardDescription';
+import StackToken from 'components/StakeToken';
 import { ZERO } from 'constants/index';
 import {
   formatNumberWithDecimal,

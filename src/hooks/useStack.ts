@@ -1,4 +1,4 @@
-import StackModal from 'components/StackModal';
+import StackModal from 'components/StakeModal';
 import { useModal } from '@ebay/nice-modal-react';
 import { useCallback } from 'react';
 import { manageStakeInfo, tokenStake } from 'contract/tokenStaking';

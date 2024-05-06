@@ -6,13 +6,13 @@ import InputNumberBase from 'components/InputNumberBase';
 import DaysSelect from 'components/DaysSelect';
 import ViewItem from 'components/ViewItem';
 import { Form, Divider, Checkbox } from 'antd';
-import { ZERO } from 'constants/index';
+import { ZERO, DEFAULT_DATE_FORMAT } from 'constants/index';
+import { MIN_STAKE_AMOUNT } from 'constants/stack';
 import { RightOutlined } from '@ant-design/icons';
 import style from './style.module.css';
 import dayjs from 'dayjs';
 import { StakeType } from 'types/stack';
 import { formatNumberWithDecimal } from 'utils/format';
-import { DEFAULT_DATE_FORMAT } from 'constants/index';
 import clsx from 'clsx';
 
 const FormItem = Form.Item;
@@ -21,7 +21,7 @@ const { Title, Text } = Typography;
 interface IStackModalProps {
   type?: StakeType;
   balance?: string;
-  min?: string; // min balance
+  min?: number; // min balance
   stakeData: IStakePoolData;
   onConfirm?: (amount: string, period: string) => void;
   onClose?: () => void;
@@ -30,7 +30,7 @@ interface IStackModalProps {
 function StackModal({
   type = StakeType.STAKE,
   balance,
-  min,
+  min = MIN_STAKE_AMOUNT,
   stakeData,
   onClose,
   onConfirm,
@@ -94,12 +94,18 @@ function StackModal({
     return ZERO.plus(days).toFixed(1);
   }, [unlockTime]);
 
-  const originPeriodStr = useMemo(
-    () => (isExtend ? `${remainingTime} Days` : ''),
-    [isExtend, remainingTime],
+  const remainingTimeFormatStr = useMemo(
+    () => (remainingTime !== '--' && ZERO.plus(remainingTime).lt(0.1) ? '< 0.1' : remainingTime),
+    [remainingTime],
   );
+
+  const originPeriodStr = useMemo(
+    () => (isExtend ? `${remainingTimeFormatStr} Days` : ''),
+    [isExtend, remainingTimeFormatStr],
+  );
+
   const periodStr = useMemo(() => {
-    if (typeIsAdd && !isExtend) return `${remainingTime} Days`;
+    if (typeIsAdd && !isExtend) return remainingTimeFormatStr + ' Days';
     if (!period) return '--';
     if (isExtend) {
       return remainingTime === '--'
@@ -107,7 +113,7 @@ function StackModal({
         : `${ZERO.plus(remainingTime).plus(period).toFixed()} Days`;
     }
     return `${period} Days`;
-  }, [isExtend, period, remainingTime, typeIsAdd]);
+  }, [isExtend, period, remainingTime, remainingTimeFormatStr, typeIsAdd]);
 
   const originAPRStr = useMemo(
     () => (!typeIsStake ? `${stakeApr}%(3.00x)` : ''),
@@ -194,10 +200,10 @@ function StackModal({
         loading={loading}
         onClick={onStack}
       >
-        {type === StakeType.EXTEND ? 'Add Stack' : 'Stake'}
+        {typeIsAdd ? 'Add Stack' : 'Stake'}
       </Button>
     );
-  }, [btnDisabled, loading, onStack, type]);
+  }, [btnDisabled, loading, onStack, typeIsAdd]);
 
   const onCancel = useCallback(() => {
     if (onClose) return onClose();
@@ -221,7 +227,7 @@ function StackModal({
       ) {
         return Promise.reject(`insufficient ${stakeSymbol} balance`);
       }
-      if (ZERO.plus(_val).lt(min || 0)) return Promise.reject('min xxx');
+      if (ZERO.plus(_val).lt(min)) return Promise.reject('min xxx');
       return Promise.resolve();
     },
     [balance, min, stakeSymbol, staked, typeIsAdd],

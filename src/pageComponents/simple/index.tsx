@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import StackCard from './components/StackCard';
+import StackCard from 'components/StakeCard';
 import useGetLoginStatus from 'redux/hooks/useGetLoginStatus';
 import { useCheckLoginAndToken } from 'hooks/useWallet';
 import useStack from 'hooks/useStack';
